@@ -1,0 +1,14 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="PZ23.App"
+             xmlns:local="using:PZ23"
+             xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
+             RequestedThemeVariant="Default">
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+  
+    <Application.Styles>
+        <styling:FluentAvaloniaTheme CustomAccentColor="CornflowerBlue" />
+    </Application.Styles>
+</Application>
