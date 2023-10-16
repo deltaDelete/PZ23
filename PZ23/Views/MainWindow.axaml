@@ -3,23 +3,29 @@
         xmlns:vm="using:PZ23.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ui="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+        xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+        xmlns:views="clr-namespace:PZ23.Views"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="PZ23.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
+        x:CompileBindings="False"
         Icon="/Assets/avalonia-logo.ico"
         Title="PZ23">
 
     <Design.DataContext>
         <!-- Это ставит DataContext только в превьюшке,
              чтобы установить DataContext в рантайме, установи значение свойству DataContext в коде ({@link App.axaml.cs}) -->
-        <vm:MainWindowViewModel/>
+        <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <ui:NavigationView>
-        <ui:NavigationView.MenuItems>
-            <ui:NavigationViewItem Content="Home" IconSource="Assets/avalonia-logo.ico"/>
-        </ui:NavigationView.MenuItems>
-        <ui:Frame x:Name="MainFrame"/>
-    </ui:NavigationView>
+    <controls:NavigationView SelectedItem="{Binding SelectedNavigation, FallbackValue=#SampleItem}"
+                             SelectionChanged="NavigationView_OnSelectionChanged"
+                             IsSettingsVisible="False">
+        <controls:NavigationView.MenuItems>
+            <controls:NavigationViewItem Content="Sample" Tag="{x:Type views:SampleView}" Name="SampleItem" IsSelected="True"/>
+        </controls:NavigationView.MenuItems>
+        <controls:Frame Name="Frame" Padding="15" />
+    </controls:NavigationView>
+
 </Window>
