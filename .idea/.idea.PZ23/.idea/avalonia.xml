@@ -4,6 +4,7 @@
     <option name="projectPerEditor">
       <map>
         <entry key="PZ23/App.axaml" value="PZ23/PZ23.csproj" />
+        <entry key="PZ23/Views/ClientView.axaml" value="PZ23/PZ23.csproj" />
         <entry key="PZ23/Views/MainWindow.axaml" value="PZ23/PZ23.csproj" />
       </map>
     </option>
