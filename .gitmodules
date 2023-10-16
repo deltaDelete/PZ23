@@ -1,3 +1,4 @@
 [submodule "DbTools"]
 	path = DbTools
 	url = https://github.com/deltaDelete/DbTools
+	branch = feat/query_builder
