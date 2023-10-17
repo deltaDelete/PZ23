@@ -1,22 +1,24 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-        xmlns:viewModels="clr-namespace:PZ23.ViewModels"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        Width="400"
-        Height="450"
-        x:Class="PZ23.Views.LoginView"
-        x:DataType="viewModels:LoginViewModel"
-        Title="Вход">
+<rxui:ReactiveWindow xmlns="https://github.com/avaloniaui"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+                     xmlns:viewModels="clr-namespace:PZ23.ViewModels"
+                     xmlns:rxui="http://reactiveui.net"
+                     mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                     Width="400"
+                     Height="450"
+                     x:Class="PZ23.Views.LoginView"
+                     x:TypeArguments="viewModels:LoginViewModel"
+                     x:DataType="viewModels:LoginViewModel"
+                     Title="Вход">
     <StackPanel Spacing="15" Orientation="Vertical" Margin="16">
         <TextBox Watermark="Логин" Text="{Binding Login}" />
-        <TextBox PasswordChar="•" Watermark="Пароль" Classes="revealPasswordButton" Text="{Binding Password}"/>
+        <TextBox PasswordChar="•" Watermark="Пароль" Classes="revealPasswordButton" Text="{Binding Password}" />
         <TextBlock Text="Ошибка" IsVisible="{Binding IsPromptIncorrect}" Foreground="{DynamicResource ErrorColor}" />
-        <WrapPanel Orientation="Horizontal" >
+        <WrapPanel Orientation="Horizontal">
             <Button Content="Закрыть" />
-            <Button Content="Войти" Background="{StaticResource AccentButtonBackground}" Command="{Binding}" />
+            <Button Content="Войти" Classes="accent" Command="{Binding LoginCommand}" />
         </WrapPanel>
     </StackPanel>
-</Window>
+</rxui:ReactiveWindow>
