@@ -18,5 +18,6 @@ class Program {
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace()
-            .UseReactiveUI();
+            .UseReactiveUI()
+            .With(new X11PlatformOptions() {RenderingMode = new [] { X11RenderingMode.Egl }});
 }
