@@ -15,29 +15,12 @@ namespace PZ23.Views;
 public partial class MainWindow : ReactiveWindow<MainWindowViewModel> {
     public MainWindow() {
         InitializeComponent();
+        ViewModel = new MainWindowViewModel();
     }
 
-    public static User CurrentUser { get; private set; }
-
-    private async Task ShowLoginWindow() {
-        LoginView login = new LoginView();
-        login.ShowDialog(this);
-        if (!login.Result) {
-            Close();
-        }
-
-        login.ViewModel.WhenAnyValue(it => it.User, selector: user => {
-            CurrentUser = user!;
-            return user!;
-        }).Subscribe(
-            u => CurrentUser = u
-        );
-    }
-
-    protected override void OnLoaded(RoutedEventArgs e) {
-        base.OnLoaded(e);
-        ShowLoginWindow().GetAwaiter().GetResult();
-    }
+    public static User? CurrentUser { get; set; }
+    
+    public static UserGroup? UserGroup { get; set; }
 
     private void NavigationView_OnSelectionChanged(object? sender, NavigationViewSelectionChangedEventArgs e) {
         if (e.SelectedItem is not NavigationViewItem item) {

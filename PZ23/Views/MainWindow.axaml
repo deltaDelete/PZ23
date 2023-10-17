@@ -25,7 +25,11 @@
                              IsSettingsVisible="False">
         <controls:NavigationView.MenuItems>
             <controls:NavigationViewItem Content="Sample" Tag="{x:Type views:SampleView}" Name="SampleItem"
-                                         IsSelected="True" />
+                                         IsSelected="True">
+                <controls:NavigationViewItem.IconSource>
+                    <controls:SymbolIconSource Symbol="Home" />
+                </controls:NavigationViewItem.IconSource>
+            </controls:NavigationViewItem>
         </controls:NavigationView.MenuItems>
         <controls:Frame Name="Frame" Padding="15" />
     </controls:NavigationView>

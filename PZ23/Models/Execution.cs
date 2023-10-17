@@ -14,10 +14,12 @@ public class Execution {
         [Column("executor_id")]
         public int ExecutorId { get; set; }
 
+        [DbTools.ForeignKey("execution.executor_id", "executors.executor_id", "executors")]
         public Executor? Executor { get; set; }
         [DbType(MySqlDbType.Int32)]
         [Column("request_id")]
         public int RequestId { get; set; }
 
+        [DbTools.ForeignKey("execution.request_id", "requests.request_id", "requests")]
         public Request? Request { get; set; }
 }

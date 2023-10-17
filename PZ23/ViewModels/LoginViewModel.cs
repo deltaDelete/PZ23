@@ -16,12 +16,14 @@ using Splat;
 
 namespace PZ23.ViewModels;
 
-public class LoginViewModel : ViewModelBase, IEnableLogger {
+public class LoginViewModel : ViewModelBase {
     private readonly LoginView _view;
 
     [Reactive] public string Login { get; set; } = string.Empty;
     [Reactive] public string Password { get; set; } = string.Empty;
-    [Reactive] public bool IsPromptIncorrect { get; set; }
+
+    [Reactive]
+    public bool IsPromptIncorrect { get; set; } = false;
 
     [Reactive] public User? User { get; set; } = null;
 
@@ -38,22 +40,25 @@ public class LoginViewModel : ViewModelBase, IEnableLogger {
             LoginAsync,
             canExecute
         );
+        CloseCommand = ReactiveCommand.Create<Window>(Close);
     }
 
     public ReactiveCommand<Unit, Unit> LoginCommand { get; set; }
+    public ReactiveCommand<Window, Unit> CloseCommand { get; set; }
 
-    public async Task LoginAsync() {
+    private async Task LoginAsync() {
         await using var db = new MyDatabase();
         User = await db.GetAsync<User>().FirstOrDefaultAsync(x => x.Username == Login && x.Password == Password);
         if (User is null) {
-            this.Log().Warn("user is null");
             _view.Result = false;
             IsPromptIncorrect = true;
             return;
         }
 
-        this.Log().Warn("Logging in");
-        _view.Result = true;
         _view.Close();
+    }
+
+    private static void Close(Window window) {
+        window.Close();
     }
 }

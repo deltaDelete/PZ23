@@ -15,9 +15,9 @@
     <StackPanel Spacing="15" Orientation="Vertical" Margin="16">
         <TextBox Watermark="Логин" Text="{Binding Login}" />
         <TextBox PasswordChar="•" Watermark="Пароль" Classes="revealPasswordButton" Text="{Binding Password}" />
-        <TextBlock Text="Ошибка" IsVisible="{Binding IsPromptIncorrect}" Foreground="{DynamicResource ErrorColor}" />
+        <TextBlock Text="Ошибка" IsVisible="{Binding IsPromptIncorrect}" Classes="error" />
         <WrapPanel Orientation="Horizontal">
-            <Button Content="Закрыть" />
+            <Button Content="Закрыть" Command="{Binding CloseCommand}" CommandParameter="{Binding $parent[Window]}"/>
             <Button Content="Войти" Classes="accent" Command="{Binding LoginCommand}" />
         </WrapPanel>
     </StackPanel>
