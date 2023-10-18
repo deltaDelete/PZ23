@@ -13,6 +13,7 @@
                 <TextBox MinWidth="256" Text="{Binding SearchQuery, Mode=TwoWay}"/>
                 <ComboBox SelectedIndex="{Binding SelectedSearchColumn}">
                     <ComboBoxItem>Все столбцы</ComboBoxItem>
+                    <ComboBoxItem>Код</ComboBoxItem>
                     <ComboBoxItem>Фамилия</ComboBoxItem>
                     <ComboBoxItem>Имя</ComboBoxItem>
                     <ComboBoxItem>Отчество</ComboBoxItem>

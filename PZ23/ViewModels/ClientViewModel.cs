@@ -92,7 +92,14 @@ public class ClientViewModel : ViewModelBase {
                 3 => _itemsFull
                     .Where(it => it.FirstName.ToLower().Contains(tuple.query.ToLower())),
                 4 => _itemsFull
-                    .Where(it => it.MiddleName.ToLower().Contains(tuple.query.ToLower()))
+                    .Where(it => it.MiddleName.ToLower().Contains(tuple.query.ToLower())),
+                _ => _itemsFull
+                    .Where(
+                        it => it.MiddleName.ToLower().Contains(tuple.query.ToLower()) || 
+                                   it.FirstName.ToLower().Contains(tuple.query.ToLower()) ||
+                                   it.LastName.ToLower().Contains(tuple.query.ToLower()) ||
+                                   it.ClientId.ToString().Contains(tuple.query.ToLower())
+                        )
             };
 
         Filtered = tuple.column switch {
