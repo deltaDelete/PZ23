@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -9,6 +11,7 @@ using FluentAvalonia.UI.Media.Animation;
 using PZ23.Models;
 using PZ23.ViewModels;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
 namespace PZ23.Views;
 
@@ -18,9 +21,11 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel> {
         ViewModel = new MainWindowViewModel();
     }
 
-    public static User? CurrentUser { get; set; }
-    
-    public static UserGroup? UserGroup { get; set; }
+    [Reactive]
+    public User? CurrentUser { get; set; }
+
+    [Reactive]
+    public ObservableCollection<Group> CurrentUserGroups { get; set; } = new();
 
     private void NavigationView_OnSelectionChanged(object? sender, NavigationViewSelectionChangedEventArgs e) {
         if (e.SelectedItem is not NavigationViewItem item) {

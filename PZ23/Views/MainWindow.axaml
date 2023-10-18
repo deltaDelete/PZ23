@@ -35,6 +35,7 @@
                     <controls:SymbolIconSource Symbol="OtherUser" />
                 </controls:NavigationViewItem.IconSource>
             </controls:NavigationViewItem>
+            <controls:NavigationViewItem Content="Оборудование" Tag="{x:Type views:GearView}"/>
         </controls:NavigationView.MenuItems>
         <controls:Frame Name="Frame" Padding="15" />
     </controls:NavigationView>

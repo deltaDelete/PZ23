@@ -5,7 +5,9 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using DynamicData.Binding;
 using PZ23.Models;
+using PZ23.Views;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -13,6 +15,8 @@ namespace PZ23.ViewModels;
 
 public class ClientViewModel : ViewModelBase {
     private List<Client> _itemsFull = null!;
+
+    private static MainWindow MainWindow => (App.Current as App).MainWindow;
 
     #region Notifying Properties
 
@@ -49,19 +53,35 @@ public class ClientViewModel : ViewModelBase {
     public ReactiveCommand<Unit, Unit> TakeLastCommand { get; }
 
     public ClientViewModel() {
-        var canExecute1 = this.WhenAnyValue(x => x.CurrentPage, selector: it => it < TotalPages);
-        var canExecute2 = this.WhenAnyValue(x => x.CurrentPage, selector: it => it > 1);
-        var canExecute3 = this.WhenAnyValue(x => x.CurrentPage, x => x.TotalPages, selector: (i1, i2) => i1 < i2);
+        var canTakeNext = this.WhenAnyValue(
+            x => x.CurrentPage,
+            selector: it => it < TotalPages);
+        var canTakeBack = this.WhenAnyValue(
+            x => x.CurrentPage,
+            selector: it => it > 1);
+        var canTakeLast = this.WhenAnyValue(
+            x => x.CurrentPage, 
+            x => x.TotalPages,
+            selector: (i1, i2) => i1 < i2);
 
-        var canExecute4 = this.WhenAnyValue(x => x.SelectedRow, selector: client => client is not null);
+        var canEdit = this.WhenAnyValue(
+            x => x.SelectedRow, 
+            selector: client => client is not null 
+                                && MainWindow.CurrentUserGroups
+                                .Any(it => it.Permissions.HasFlag(Permissions.Write)));
 
-        TakeNextCommand = ReactiveCommand.Create(TakeNext, canExecute1);
-        TakePrevCommand = ReactiveCommand.Create(TakePrev, canExecute2);
-        TakeFirstCommand = ReactiveCommand.Create(TakeFirst, canExecute2);
-        TakeLastCommand = ReactiveCommand.Create(TakeLast, canExecute3);
-        EditItemCommand = ReactiveCommand.Create<Client>(EditItem, canExecute4);
-        RemoveItemCommand = ReactiveCommand.Create<Client>(RemoveItem, canExecute4);
-        NewItemCommand = ReactiveCommand.CreateFromTask(NewItem);
+        var canInsert = MainWindow.WhenAnyValue(
+            it => it.CurrentUserGroups,
+            selector: it => it.Any(group => group.Permissions.HasFlag(Permissions.Insert))
+        );
+
+        TakeNextCommand = ReactiveCommand.Create(TakeNext, canTakeNext);
+        TakePrevCommand = ReactiveCommand.Create(TakePrev, canTakeBack);
+        TakeFirstCommand = ReactiveCommand.Create(TakeFirst, canTakeBack);
+        TakeLastCommand = ReactiveCommand.Create(TakeLast, canTakeLast);
+        EditItemCommand = ReactiveCommand.Create<Client>(EditItem, canEdit);
+        RemoveItemCommand = ReactiveCommand.Create<Client>(RemoveItem, canEdit);
+        NewItemCommand = ReactiveCommand.CreateFromTask(NewItem, canInsert);
 
         GetDataFromDb();
 
