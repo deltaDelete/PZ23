@@ -3,12 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using Avalonia.Controls;
-using Avalonia.Threading;
-using DynamicData;
-using FluentAvalonia.Core;
 using PZ23.Models;
 using ReactiveUI;
 
@@ -16,10 +12,9 @@ namespace PZ23.ViewModels;
 
 public class ClientViewModel : ViewModelBase
 {
-    private readonly Window _clientView;
     private string _searchQuery = string.Empty;
     private BindingList<Client> _items = new();
-    private List<Client> _itemsFull;
+    private List<Client> _itemsFull = null!;
     private int _selectedSearchColumn;
     private bool _isSortByDescending = false;
     private int _take = 10;
@@ -27,20 +22,7 @@ public class ClientViewModel : ViewModelBase
     private int _currentPage = 1;
     private List<Client> _filtered = new List<Client>();
     private bool _isLoading = true;
-    private Client _selectedRow;
-
-    public ClientViewModel()
-    {
-        var canExecute1 = this.WhenAnyValue(x => x.CurrentPage, selector: it => it < TotalPages);
-        var canExecute2 = this.WhenAnyValue(x => x.CurrentPage, selector: it => it > 1);
-        var canExecute3 = this.WhenAnyValue(x => x.CurrentPage, x => x.TotalPages, selector: (i1, i2) => i1 < i2);
-
-        TakeNextCommand = ReactiveCommand.Create(TakeNext, canExecute1);
-        TakePrevCommand = ReactiveCommand.Create(TakePrev, canExecute2);
-        TakeFirstCommand = ReactiveCommand.Create(TakeFirst, canExecute2);
-        TakeLastCommand = ReactiveCommand.Create(TakeLast, canExecute3);
-        EditItemCommand = ReactiveCommand.Create(EditItem, );
-    }
+    private Client? _selectedRow;
 
     #region Notifying Properties
 
@@ -111,7 +93,7 @@ public class ClientViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _isLoading, value);
     }
 
-    public Client SelectedRow
+    public Client? SelectedRow
     {
         get => _selectedRow;
         set => this.RaiseAndSetIfChanged(ref _selectedRow, value);
@@ -119,47 +101,73 @@ public class ClientViewModel : ViewModelBase
     
     #endregion
     
-    public ReactiveCommand<Unit, Unit> EditItemCommand { get; }
-    public ReactiveCommand<Unit, Unit> RemoveItemCommand { get; }
-    public ICommand NewItemCommand { get; }
+    public ReactiveCommand<Client, Unit> EditItemCommand { get; }
+    public ReactiveCommand<Client, Unit> RemoveItemCommand { get; }
+    public ReactiveCommand<Unit, Unit> NewItemCommand { get; }
     public ReactiveCommand<Unit, Unit> TakeNextCommand { get; }
     public ReactiveCommand <Unit, Unit> TakePrevCommand { get; }
     public ReactiveCommand <Unit, Unit> TakeFirstCommand { get; }
     public ReactiveCommand<Unit, Unit> TakeLastCommand { get; }
+    
+    public ClientViewModel() {
+        var canExecute1 = this.WhenAnyValue(x => x.CurrentPage, selector: it => it < TotalPages);
+        var canExecute2 = this.WhenAnyValue(x => x.CurrentPage, selector: it => it > 1);
+        var canExecute3 = this.WhenAnyValue(x => x.CurrentPage, x => x.TotalPages, selector: (i1, i2) => i1 < i2);
 
-    private void OnSearchChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if(e.PropertyName !=nameof(SearchQuery) && e.PropertyName!=nameof(SelectedSearchColumn) && e.PropertyName!=nameof(IsSortByDescending))
-        {
+        var canExecute4 = this.WhenAnyValue(x => x.SelectedRow, selector: client => client is not null);
+
+        TakeNextCommand = ReactiveCommand.Create(TakeNext, canExecute1);
+        TakePrevCommand = ReactiveCommand.Create(TakePrev, canExecute2);
+        TakeFirstCommand = ReactiveCommand.Create(TakeFirst, canExecute2);
+        TakeLastCommand = ReactiveCommand.Create(TakeLast, canExecute3);
+        EditItemCommand = ReactiveCommand.Create<Client>(EditItem, canExecute4);
+        RemoveItemCommand = ReactiveCommand.Create<Client>(RemoveItem, canExecute4);
+        NewItemCommand = ReactiveCommand.CreateFromTask(NewItem);
+        
+        GetDataFromDb();
+        
+        this.WhenAnyValue(
+                x => x.SearchQuery,
+                x => x.SelectedSearchColumn,
+                x => x.IsSortByDescending
+            )
+            .DistinctUntilChanged()
+            .Subscribe(OnSearchChanged);
+        this.WhenAnyValue(
+            x => x.Filtered
+        ).Subscribe(_ => TakeFirst());
+    }
+
+    private void OnSearchChanged((string query, int column, bool isDescending) tuple) {
+        if (_itemsFull is null) {
             return;
         }
-
-        var filtered = SearchQuery == ""
+        var filtered = tuple.query == ""
             ? _itemsFull
-            : SelectedSearchColumn switch
+            : tuple.column switch
             {
                 1 => _itemsFull
-                    .Where(it => it.ClientId.ToString().Contains(SearchQuery)),
+                    .Where(it => it.ClientId.ToString().Contains(tuple.query)),
                 2 => _itemsFull
-                    .Where(it => it.LastName.ToLower().Contains(SearchQuery.ToLower())),
+                    .Where(it => it.LastName.ToLower().Contains(tuple.query.ToLower())),
                 3 => _itemsFull
-                    .Where(it => it.FirstName.ToLower().Contains(SearchQuery.ToLower())),
+                    .Where(it => it.FirstName.ToLower().Contains(tuple.query.ToLower())),
                 4 => _itemsFull
-                    .Where(it => it.MiddleName.ToLower().Contains(SearchQuery.ToLower()))
+                    .Where(it => it.MiddleName.ToLower().Contains(tuple.query.ToLower()))
             };
 
-        Filtered = SelectedSearchColumn switch
+        Filtered = tuple.column switch
         {
-            2 => IsSortByDescending
+            2 => tuple.isDescending
                 ? filtered.OrderByDescending(it => it.LastName).ToList()
                 : filtered.OrderBy(it => it.LastName).ToList(),
-            3 => IsSortByDescending
+            3 => tuple.isDescending
                 ? filtered.OrderByDescending(it => it.FirstName).ToList()
                 : filtered.OrderBy(it => it.FirstName).ToList(),
-            4 => IsSortByDescending
+            4 => tuple.isDescending
                 ? filtered.OrderByDescending(it => it.MiddleName).ToList()
                 : filtered.OrderBy(it => it.MiddleName).ToList(),
-            _ => IsSortByDescending
+            _ => tuple.isDescending
                 ? filtered.OrderByDescending(it => it.ClientId).ToList()
                 : filtered.OrderBy(it => it.ClientId).ToList()
         };
@@ -171,9 +179,10 @@ public class ClientViewModel : ViewModelBase
         {
             IsLoading = true;
             await using var db = new MyDatabase();
-            var users = db.GetAsync<Client>().ToListAsync();
+            var list = await db.GetAsync<Client>().ToListAsync();
+            _itemsFull = list;
+            Filtered = _itemsFull;
             IsLoading = false;
-            Dispatcher.UIThread.Invoke(ReevaluateCommands);
             SearchQuery = string.Empty;
             return Task.CompletedTask;
         });
@@ -182,17 +191,18 @@ public class ClientViewModel : ViewModelBase
     private async void RemoveItem(Client? arg)
     {
         if(arg is null) return;
-        await new ConfirmationDialog(
-            "Вы собираетесь удалить строку",
-            $"Пользователь: {arg.LastName} {arg.FirstName} {arg.MiddleName}",
-            async dialog =>
-            {
-                await using var db = new MyDatabase();
-                await db.RemoveAsync(arg);
-                RemoveLocal(arg);
-            },
-            dialog => { }
-        ).ShowDialog(_clientView);
+        // await new ConfirmationDialog(
+        //     "Вы собираетесь удалить строку",
+        //     $"Пользователь: {arg.LastName} {arg.FirstName} {arg.MiddleName}",
+        //     async dialog =>
+        //     {
+        //         await using var db = new MyDatabase();
+        //         await db.RemoveAsync(arg);
+        //         RemoveLocal(arg);
+        //     },
+        //     dialog => { }
+        // ).ShowDialog(_clientView);
+        throw new NotImplementedException();
     }
 
     private void RemoveLocal(Client arg)
@@ -205,16 +215,17 @@ public class ClientViewModel : ViewModelBase
     private async void EditItem(Client? arg)
     {
         if(arg is null) return;
-        await new EditClientDialog(
-            arg,
-            async client =>
-            {
-                await using var db = new MyDatabase();
-                await db.UpdateAsync(client.ClientId, client);
-                ReplaceItem(arg, client);
-            },
-            "Изменить клиента"
-        ).ShowDialog(_clientView);
+        // await new EditClientDialog(
+        //     arg,
+        //     async client =>
+        //     {
+        //         await using var db = new MyDatabase();
+        //         await db.UpdateAsync(client.ClientId, client);
+        //         ReplaceItem(arg, client);
+        //     },
+        //     "Изменить клиента"
+        // ).ShowDialog(_clientView);
+        throw new NotImplementedException();
     }
 
     private void ReplaceItem(Client prevItem, Client newItem)
@@ -240,17 +251,18 @@ public class ClientViewModel : ViewModelBase
 
     private async Task NewItem()
     {
-        await new EditClientDialog(
-            new Client(),
-            async client =>
-            {
-                await using var db = new MyDatabase();
-                int newItemId = await db.InsertAsync(client);
-                client.ClientId = newItemId;
-                _itemsFull.Add(client);
-            },
-            "Добавить клиента"
-        ).ShowDialog(_clientView);
+        // await new EditClientDialog(
+        //     new Client(),
+        //     async client =>
+        //     {
+        //         await using var db = new MyDatabase();
+        //         int newItemId = Convert.ToInt32(await db.InsertAsync(client));
+        //         client.ClientId = newItemId;
+        //         _itemsFull.Add(client);
+        //     },
+        //     "Добавить клиента"
+        // ).ShowDialog(_clientView);
+        throw new NotImplementedException();
     }
 
     private void TakeNext()
@@ -283,13 +295,5 @@ public class ClientViewModel : ViewModelBase
         Items = new(
             Filtered.TakeLast(Take).ToList()
         );
-    }
-
-    private void ReevaluateCommands()
-    {
-        TakeFirstCommand.RaiseCanExecuteChanged(null, EventArgs.Empty);
-        TakePrevCommand.RaiseCanExecuteChanged(null, EventArgs.Empty);
-        TakeNextCommand.RaiseCanExecuteChanged(null, EventArgs.Empty);
-        TakeLastCommand.RaiseCanExecuteChanged(null, EventArgs.Empty);
     }
 }

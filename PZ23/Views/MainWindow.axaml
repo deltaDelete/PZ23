@@ -30,6 +30,11 @@
                     <controls:SymbolIconSource Symbol="Home" />
                 </controls:NavigationViewItem.IconSource>
             </controls:NavigationViewItem>
+            <controls:NavigationViewItem Content="Клиенты" Tag="{x:Type views:ClientView}">
+                <controls:NavigationViewItem.IconSource>
+                    <controls:SymbolIconSource Symbol="OtherUser" />
+                </controls:NavigationViewItem.IconSource>
+            </controls:NavigationViewItem>
         </controls:NavigationView.MenuItems>
         <controls:Frame Name="Frame" Padding="15" />
     </controls:NavigationView>

@@ -21,7 +21,7 @@ public partial class App : Application {
             var mainWindow = new MainWindow() {
                 IsEnabled = false
             };
-            var login = ShowLoginWindow(
+            var login = CreateLoginWindow(
                 u => {
                     if (u is null) return;
                     MainWindow.CurrentUser = u;
@@ -32,18 +32,18 @@ public partial class App : Application {
                 if (MainWindow.CurrentUser is not null) return;
                 mainWindow.Close();
             };
+            mainWindow.Opened += (_, _) => {
+                login.Show(mainWindow);
+            };
             desktop.MainWindow = mainWindow;
         }
 
         base.OnFrameworkInitializationCompleted();
     }
 
-    private static LoginView ShowLoginWindow(Action<User?> action) {
+    private static LoginView CreateLoginWindow(Action<User?> action) {
         var login = new LoginView();
-
         login.ViewModel.WhenAnyValue(it => it.User, selector: user => user).Subscribe(action);
-
-        login.Show();
         return login;
     }
 }

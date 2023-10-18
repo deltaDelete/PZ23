@@ -1,12 +1,12 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:PZ23.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="viewModels:ClientViewModel"
-             x:Class="PZ23.Views.ClientView"
-             Name="ClientView">
+<rxui:ReactiveUserControl x:TypeArguments="vm:ClientViewModel" xmlns="https://github.com/avaloniaui"
+                                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                                xmlns:vm="clr-namespace:PZ23.ViewModels"
+                                xmlns:rxui="http://reactiveui.net"
+                                mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                                x:DataType="vm:ClientViewModel"
+                                x:Class="PZ23.Views.ClientView">
     <DockPanel LastChildFill="True">
         <ScrollViewer DockPanel.Dock="Top" HorizontalScrollBarVisibility="Auto">
             <StackPanel Spacing="8" Orientation="Horizontal" Margin="15">
@@ -47,6 +47,6 @@
         </Grid>
     </DockPanel>
     <Design.DataContext>
-        <viewModels:ClientViewModel/>
+        <vm:ClientViewModel/>
     </Design.DataContext>
-</UserControl>
+</rxui:ReactiveUserControl>
