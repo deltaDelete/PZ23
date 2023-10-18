@@ -7,108 +7,47 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using PZ23.Models;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
-namespace PZ23.ViewModels; 
+namespace PZ23.ViewModels;
 
-public class ClientViewModel : ViewModelBase
-{
-    private string _searchQuery = string.Empty;
-    private BindingList<Client> _items = new();
+public class ClientViewModel : ViewModelBase {
     private List<Client> _itemsFull = null!;
-    private int _selectedSearchColumn;
-    private bool _isSortByDescending = false;
-    private int _take = 10;
-    private int _skip = 0;
-    private int _currentPage = 1;
-    private List<Client> _filtered = new List<Client>();
-    private bool _isLoading = true;
-    private Client? _selectedRow;
 
     #region Notifying Properties
 
-    public int SelectedSearchColumn
-    {
-        get => _selectedSearchColumn;
-        set
-        {
-            this.RaisePropertyChanging();
-            if(value == _selectedSearchColumn) return;
-            _selectedSearchColumn = value;
-            this.RaisePropertyChanging();
-        }
-    }
+    [Reactive] public int SelectedSearchColumn { get; set; }
 
-    public bool IsSortByDescending
-    {
-        get => _isSortByDescending;
-        set => this.RaiseAndSetIfChanged(ref _isSortByDescending, value);
-    }
+    [Reactive] public bool IsSortByDescending { get; set; } = false;
 
-    public string SearchQuery
-    {
-        get => _searchQuery;
-        set
-        {
-            if(value == _searchQuery) return;
-            _searchQuery = value;
-            this.RaisePropertyChanging();
-        }
-    }
+    [Reactive] public string SearchQuery { get; set; } = string.Empty;
 
-    public BindingList<Client> Items
-    {
-        get => _items;
-        set => this.RaiseAndSetIfChanged(ref _items, value);
-    }
+    [Reactive] public BindingList<Client> Items { get; set; } = new();
 
-    public int Take
-    {
-        get => _take;
-        set => this.RaiseAndSetIfChanged(ref _take, value);
-    }
+    [Reactive] public int Take { get; set; } = 10;
 
-    public int Skip
-    {
-        get => _skip;
-        set => this.RaiseAndSetIfChanged(ref _skip, value);
-    }
+    [Reactive] public int Skip { get; set; } = 0;
 
-    public int CurrentPage
-    {
-        get => _currentPage;
-        set => this.RaiseAndSetIfChanged(ref _currentPage, value);
-    }
+    [Reactive] public int CurrentPage { get; set; } = 1;
 
     public int TotalPages => (int)Math.Ceiling(Filtered.Count / (double)Take);
 
-    public List<Client> Filtered
-    {
-        get => _filtered;
-        set => this.RaiseAndSetIfChanged(ref _filtered, value);
-    }
+    [Reactive] public List<Client> Filtered { get; set; } = new List<Client>();
 
-    public bool IsLoading
-    {
-        get => _isLoading;
-        set => this.RaiseAndSetIfChanged(ref _isLoading, value);
-    }
+    [Reactive] public bool IsLoading { get; set; } = true;
 
-    public Client? SelectedRow
-    {
-        get => _selectedRow;
-        set => this.RaiseAndSetIfChanged(ref _selectedRow, value);
-    }
-    
+    [Reactive] public Client? SelectedRow { get; set; } = null!;
+
     #endregion
-    
+
     public ReactiveCommand<Client, Unit> EditItemCommand { get; }
     public ReactiveCommand<Client, Unit> RemoveItemCommand { get; }
     public ReactiveCommand<Unit, Unit> NewItemCommand { get; }
     public ReactiveCommand<Unit, Unit> TakeNextCommand { get; }
-    public ReactiveCommand <Unit, Unit> TakePrevCommand { get; }
-    public ReactiveCommand <Unit, Unit> TakeFirstCommand { get; }
+    public ReactiveCommand<Unit, Unit> TakePrevCommand { get; }
+    public ReactiveCommand<Unit, Unit> TakeFirstCommand { get; }
     public ReactiveCommand<Unit, Unit> TakeLastCommand { get; }
-    
+
     public ClientViewModel() {
         var canExecute1 = this.WhenAnyValue(x => x.CurrentPage, selector: it => it < TotalPages);
         var canExecute2 = this.WhenAnyValue(x => x.CurrentPage, selector: it => it > 1);
@@ -123,9 +62,9 @@ public class ClientViewModel : ViewModelBase
         EditItemCommand = ReactiveCommand.Create<Client>(EditItem, canExecute4);
         RemoveItemCommand = ReactiveCommand.Create<Client>(RemoveItem, canExecute4);
         NewItemCommand = ReactiveCommand.CreateFromTask(NewItem);
-        
+
         GetDataFromDb();
-        
+
         this.WhenAnyValue(
                 x => x.SearchQuery,
                 x => x.SelectedSearchColumn,
@@ -142,10 +81,10 @@ public class ClientViewModel : ViewModelBase
         if (_itemsFull is null) {
             return;
         }
+
         var filtered = tuple.query == ""
             ? _itemsFull
-            : tuple.column switch
-            {
+            : tuple.column switch {
                 1 => _itemsFull
                     .Where(it => it.ClientId.ToString().Contains(tuple.query)),
                 2 => _itemsFull
@@ -156,8 +95,7 @@ public class ClientViewModel : ViewModelBase
                     .Where(it => it.MiddleName.ToLower().Contains(tuple.query.ToLower()))
             };
 
-        Filtered = tuple.column switch
-        {
+        Filtered = tuple.column switch {
             2 => tuple.isDescending
                 ? filtered.OrderByDescending(it => it.LastName).ToList()
                 : filtered.OrderBy(it => it.LastName).ToList(),
@@ -173,10 +111,8 @@ public class ClientViewModel : ViewModelBase
         };
     }
 
-    private async void GetDataFromDb()
-    {
-        await Task.Run(async () =>
-        {
+    private async void GetDataFromDb() {
+        await Task.Run(async () => {
             IsLoading = true;
             await using var db = new MyDatabase();
             var list = await db.GetAsync<Client>().ToListAsync();
@@ -188,9 +124,8 @@ public class ClientViewModel : ViewModelBase
         });
     }
 
-    private async void RemoveItem(Client? arg)
-    {
-        if(arg is null) return;
+    private async void RemoveItem(Client? arg) {
+        if (arg is null) return;
         // await new ConfirmationDialog(
         //     "Вы собираетесь удалить строку",
         //     $"Пользователь: {arg.LastName} {arg.FirstName} {arg.MiddleName}",
@@ -205,16 +140,14 @@ public class ClientViewModel : ViewModelBase
         throw new NotImplementedException();
     }
 
-    private void RemoveLocal(Client arg)
-    {
+    private void RemoveLocal(Client arg) {
         Items.Remove(arg);
         _itemsFull.Remove(arg);
         Filtered.Remove(arg);
     }
 
-    private async void EditItem(Client? arg)
-    {
-        if(arg is null) return;
+    private async void EditItem(Client? arg) {
+        if (arg is null) return;
         // await new EditClientDialog(
         //     arg,
         //     async client =>
@@ -228,29 +161,24 @@ public class ClientViewModel : ViewModelBase
         throw new NotImplementedException();
     }
 
-    private void ReplaceItem(Client prevItem, Client newItem)
-    {
-        if (Filtered.Contains(prevItem))
-        {
+    private void ReplaceItem(Client prevItem, Client newItem) {
+        if (Filtered.Contains(prevItem)) {
             var index = Filtered.IndexOf(prevItem);
             Filtered[index] = newItem;
         }
 
-        if (_itemsFull.Contains(prevItem))
-        {
+        if (_itemsFull.Contains(prevItem)) {
             var index = _itemsFull.IndexOf(prevItem);
             _itemsFull[index] = newItem;
         }
 
-        if (Items.Contains(prevItem))
-        {
+        if (Items.Contains(prevItem)) {
             var index = _itemsFull.IndexOf(prevItem);
             Items[index] = newItem;
         }
     }
 
-    private async Task NewItem()
-    {
+    private async Task NewItem() {
         // await new EditClientDialog(
         //     new Client(),
         //     async client =>
@@ -265,32 +193,28 @@ public class ClientViewModel : ViewModelBase
         throw new NotImplementedException();
     }
 
-    private void TakeNext()
-    {
+    private void TakeNext() {
         Skip += Take;
         Items = new(
             Filtered.Skip(Skip).Take(Take).ToList()
-            );
+        );
     }
 
-    private void TakePrev()
-    {
+    private void TakePrev() {
         Skip -= Take;
         Items = new(
             Filtered.Skip(Skip).Take(Take).ToList()
-            );
+        );
     }
 
-    private void TakeFirst()
-    {
+    private void TakeFirst() {
         Skip = 0;
         Items = new(
             Filtered.Take(Take).ToList()
-            );
+        );
     }
 
-    private void TakeLast()
-    {
+    private void TakeLast() {
         Skip = Filtered.Count - Take;
         Items = new(
             Filtered.TakeLast(Take).ToList()
