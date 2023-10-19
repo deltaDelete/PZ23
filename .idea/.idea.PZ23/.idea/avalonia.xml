@@ -5,10 +5,17 @@
       <map>
         <entry key="PZ23/App.axaml" value="PZ23/PZ23.csproj" />
         <entry key="PZ23/Views/ClientView.axaml" value="PZ23/PZ23.csproj" />
+        <entry key="PZ23/Views/ExecutionView.axaml" value="PZ23/PZ23.csproj" />
+        <entry key="PZ23/Views/ExecutorView.axaml" value="PZ23/PZ23.csproj" />
+        <entry key="PZ23/Views/FailureTypeView.axaml" value="PZ23/PZ23.csproj" />
         <entry key="PZ23/Views/GearView.axaml" value="PZ23/PZ23.csproj" />
         <entry key="PZ23/Views/LoginView.axaml" value="PZ23/PZ23.csproj" />
         <entry key="PZ23/Views/MainWindow.axaml" value="PZ23/PZ23.csproj" />
+        <entry key="PZ23/Views/PriorityView.axaml" value="PZ23/PZ23.csproj" />
+        <entry key="PZ23/Views/RequestStatusView.axaml" value="PZ23/PZ23.csproj" />
+        <entry key="PZ23/Views/RequestView.axaml" value="PZ23/PZ23.csproj" />
         <entry key="PZ23/Views/SampleView.axaml" value="PZ23/PZ23.csproj" />
+        <entry key="PZ23/Views/ServiceView.axaml" value="PZ23/PZ23.csproj" />
       </map>
     </option>
   </component>

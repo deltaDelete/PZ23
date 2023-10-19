@@ -17,8 +17,8 @@
         <TextBox PasswordChar="•" Watermark="Пароль" Classes="revealPasswordButton" Text="{Binding Password}" />
         <TextBlock Text="Ошибка" IsVisible="{Binding IsPromptIncorrect}" Classes="error" />
         <WrapPanel Orientation="Horizontal">
-            <Button Content="Закрыть" Command="{Binding CloseCommand}" CommandParameter="{Binding $parent[Window]}"/>
-            <Button Content="Войти" Classes="accent" Command="{Binding LoginCommand}" />
+            <Button Content="Закрыть" Command="{Binding CloseCommand}" CommandParameter="{Binding $parent[Window]}" IsCancel="True"/>
+            <Button Content="Войти" Classes="accent" Command="{Binding LoginCommand}" IsDefault="True"/>
         </WrapPanel>
     </StackPanel>
 </rxui:ReactiveWindow>

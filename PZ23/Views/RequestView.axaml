@@ -1,12 +1,69 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:PZ23.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:DataType="viewModels:RequestViewModel"
-             x:Class="PZ23.Views.RequestView">
+<rxui:ReactiveUserControl x:TypeArguments="vm:RequestViewModel" xmlns="https://github.com/avaloniaui"
+                                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                                xmlns:vm="clr-namespace:PZ23.ViewModels"
+                                xmlns:rxui="http://reactiveui.net"
+                                mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                                x:DataType="vm:RequestViewModel"
+                                x:Class="PZ23.Views.RequestView">
+    <DockPanel LastChildFill="True">
+        <ScrollViewer DockPanel.Dock="Top" HorizontalScrollBarVisibility="Auto">
+            <StackPanel Spacing="8" Orientation="Horizontal" Margin="15">
+                <TextBox MinWidth="256" Text="{Binding SearchQuery, Mode=TwoWay}"/>
+                <ComboBox SelectedIndex="{Binding SelectedSearchColumn}">
+                    <ComboBoxItem>Все столбцы</ComboBoxItem>
+                    <ComboBoxItem>Код</ComboBoxItem>
+                    <ComboBoxItem>Дата начала</ComboBoxItem>
+                    <ComboBoxItem>Оборудование</ComboBoxItem>
+                    <ComboBoxItem>Тип неисправности</ComboBoxItem>
+                    <ComboBoxItem>Описание неисправности</ComboBoxItem>
+                    <ComboBoxItem>Клиент</ComboBoxItem>
+                    <ComboBoxItem>Приоритет</ComboBoxItem>
+                    <ComboBoxItem>Статус заявки</ComboBoxItem>
+                </ComboBox>
+                <CheckBox IsChecked="{Binding IsSortByDescending}">Сортировка по убыванию</CheckBox>
+                <Button Content="Добавить" Background="{StaticResource AccentButtonBackground}" Command="{Binding NewItemCommand}"/>
+                <Button Content="Изменить" Command="{Binding EditItemCommand}" CommandParameter="{Binding SelectedRow}" />
+                <Button Content="Удалить" Command="{Binding RemoveItemCommand}" CommandParameter="{Binding SelectedRow}" />
+            </StackPanel>
+        </ScrollViewer>
+        <StackPanel Orientation="Horizontal" Spacing="5" DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="10">
+            <Button Content="В начало" Command="{Binding TakeFirstCommand}" />
+            <Button Content="Назад" Command="{Binding TakePrevCommand}" />
+            <TextBlock VerticalAlignment="Center">
+                <Run Text="{Binding CurrentPage}" />
+                <Run Text="/"/>
+                <Run Text="{Binding TotalPages}" />
+            </TextBlock>
+            <Button Content="Вперед" Command="{Binding TakeNextCommand}" />
+            <Button Content="В конец" Command="{Binding TakeLastCommand}" />
+        </StackPanel>
+        <Grid>
+            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <DataGrid x:Name="ClientDataGrid" SelectedItem="{Binding SelectedRow}" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="All">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding RequestId}" Header="Код"/>
+                    <DataGridTextColumn Binding="{Binding StartDate}" Header="Дата начала"/>
+                    <DataGridTextColumn Binding="{Binding GearId}" Header="Оборудование"/>
+                    <DataGridTextColumn Binding="{Binding Type.FailureTypeName}" Header="Тип неисправности"/>
+                    <DataGridTextColumn Binding="{Binding FailureDescription}" Header="Описание неисправности"/>
+                    <DataGridTextColumn Header="Клиент">
+                        <DataGridTextColumn.Binding>
+                            <MultiBinding StringFormat="\{0\} \{1\} \{2\}">
+                                <Binding Path="Client.LastName" />
+                                <Binding Path="Client.MiddleName" />
+                                <Binding Path="Client.FirstName" />
+                            </MultiBinding>
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding Priority.PriorityName}" Header="Приоритет"/>
+                    <DataGridTextColumn Binding="{Binding RequestStatus.RequestStatusName}" Header="Статус заявки"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </DockPanel>
     <Design.DataContext>
-        <viewModels:RequestViewModel/>
+        <vm:RequestViewModel/>
     </Design.DataContext>
-</UserControl>
+</rxui:ReactiveUserControl>
