@@ -52,13 +52,18 @@
                         <DataGridTextColumn.Binding>
                             <MultiBinding StringFormat="\{0\} \{1\} \{2\}">
                                 <Binding Path="Client.LastName" />
-                                <Binding Path="Client.MiddleName" />
                                 <Binding Path="Client.FirstName" />
+                                <Binding Path="Client.MiddleName" />
                             </MultiBinding>
                         </DataGridTextColumn.Binding>
                     </DataGridTextColumn>
                     <DataGridTextColumn Binding="{Binding Priority.PriorityName}" Header="Приоритет"/>
                     <DataGridTextColumn Binding="{Binding RequestStatus.RequestStatusName}" Header="Статус заявки"/>
+                    <DataGridTextColumn Header="Дата выполнения">
+                        <DataGridTextColumn.Binding>
+                            <Binding Path="EndDate" FallbackValue="Не выполнено" />
+                        </DataGridTextColumn.Binding>
+                    </DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
