@@ -5,9 +5,12 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls;
+using DynamicData;
 using DynamicData.Binding;
 using PZ23.Models;
 using PZ23.Views;
+using PZ23.Views.Dialogs;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -15,32 +18,41 @@ namespace PZ23.ViewModels;
 
 public class ClientViewModel : ViewModelBase {
     private List<Client> _itemsFull = null!;
-
     private static MainWindow MainWindow => (App.Current as App).MainWindow;
 
     #region Notifying Properties
 
-    [Reactive] public int SelectedSearchColumn { get; set; }
+    [Reactive]
+    public int SelectedSearchColumn { get; set; }
 
-    [Reactive] public bool IsSortByDescending { get; set; } = false;
+    [Reactive]
+    public bool IsSortByDescending { get; set; } = false;
 
-    [Reactive] public string SearchQuery { get; set; } = string.Empty;
+    [Reactive]
+    public string SearchQuery { get; set; } = string.Empty;
 
-    [Reactive] public BindingList<Client> Items { get; set; } = new();
+    [Reactive]
+    public BindingList<Client> Items { get; set; } = new();
 
-    [Reactive] public int Take { get; set; } = 10;
+    [Reactive]
+    public int Take { get; set; } = 10;
 
-    [Reactive] public int Skip { get; set; } = 0;
+    [Reactive]
+    public int Skip { get; set; } = 0;
 
-    [Reactive] public int CurrentPage { get; set; } = 1;
+    [Reactive]
+    public int CurrentPage { get; set; } = 1;
 
     public int TotalPages => (int)Math.Ceiling(Filtered.Count / (double)Take);
 
-    [Reactive] public List<Client> Filtered { get; set; } = new List<Client>();
+    [Reactive]
+    public List<Client> Filtered { get; set; } = new List<Client>();
 
-    [Reactive] public bool IsLoading { get; set; } = true;
+    [Reactive]
+    public bool IsLoading { get; set; } = true;
 
-    [Reactive] public Client? SelectedRow { get; set; } = null!;
+    [Reactive]
+    public Client? SelectedRow { get; set; } = null!;
 
     #endregion
 
@@ -60,15 +72,15 @@ public class ClientViewModel : ViewModelBase {
             x => x.CurrentPage,
             selector: it => it > 1);
         var canTakeLast = this.WhenAnyValue(
-            x => x.CurrentPage, 
+            x => x.CurrentPage,
             x => x.TotalPages,
             selector: (i1, i2) => i1 < i2);
 
         var canEdit = this.WhenAnyValue(
-            x => x.SelectedRow, 
-            selector: client => client is not null 
+            x => x.SelectedRow,
+            selector: client => client is not null
                                 && MainWindow.CurrentUserGroups
-                                .Any(it => it.Permissions.HasFlag(Permissions.Write)));
+                                             .Any(it => it.Permissions.HasFlag(Permissions.Write)));
 
         var canInsert = MainWindow.WhenAnyValue(
             it => it.CurrentUserGroups,
@@ -103,38 +115,38 @@ public class ClientViewModel : ViewModelBase {
         }
 
         var filtered = tuple.query == ""
-            ? _itemsFull
-            : tuple.column switch {
-                1 => _itemsFull
-                    .Where(it => it.ClientId.ToString().Contains(tuple.query)),
-                2 => _itemsFull
-                    .Where(it => it.LastName.ToLower().Contains(tuple.query.ToLower())),
-                3 => _itemsFull
-                    .Where(it => it.FirstName.ToLower().Contains(tuple.query.ToLower())),
-                4 => _itemsFull
-                    .Where(it => it.MiddleName.ToLower().Contains(tuple.query.ToLower())),
-                _ => _itemsFull
-                    .Where(
-                        it => it.MiddleName.ToLower().Contains(tuple.query.ToLower()) || 
-                                   it.FirstName.ToLower().Contains(tuple.query.ToLower()) ||
-                                   it.LastName.ToLower().Contains(tuple.query.ToLower()) ||
-                                   it.ClientId.ToString().Contains(tuple.query.ToLower())
-                        )
-            };
+                           ? _itemsFull
+                           : tuple.column switch {
+                               1 => _itemsFull
+                                   .Where(it => it.ClientId.ToString().Contains(tuple.query)),
+                               2 => _itemsFull
+                                   .Where(it => it.LastName.ToLower().Contains(tuple.query.ToLower())),
+                               3 => _itemsFull
+                                   .Where(it => it.FirstName.ToLower().Contains(tuple.query.ToLower())),
+                               4 => _itemsFull
+                                   .Where(it => it.MiddleName.ToLower().Contains(tuple.query.ToLower())),
+                               _ => _itemsFull
+                                   .Where(
+                                       it => it.MiddleName.ToLower().Contains(tuple.query.ToLower()) ||
+                                             it.FirstName.ToLower().Contains(tuple.query.ToLower()) ||
+                                             it.LastName.ToLower().Contains(tuple.query.ToLower()) ||
+                                             it.ClientId.ToString().Contains(tuple.query.ToLower())
+                                   )
+                           };
 
         Filtered = tuple.column switch {
             2 => tuple.isDescending
-                ? filtered.OrderByDescending(it => it.LastName).ToList()
-                : filtered.OrderBy(it => it.LastName).ToList(),
+                     ? filtered.OrderByDescending(it => it.LastName).ToList()
+                     : filtered.OrderBy(it => it.LastName).ToList(),
             3 => tuple.isDescending
-                ? filtered.OrderByDescending(it => it.FirstName).ToList()
-                : filtered.OrderBy(it => it.FirstName).ToList(),
+                     ? filtered.OrderByDescending(it => it.FirstName).ToList()
+                     : filtered.OrderBy(it => it.FirstName).ToList(),
             4 => tuple.isDescending
-                ? filtered.OrderByDescending(it => it.MiddleName).ToList()
-                : filtered.OrderBy(it => it.MiddleName).ToList(),
+                     ? filtered.OrderByDescending(it => it.MiddleName).ToList()
+                     : filtered.OrderBy(it => it.MiddleName).ToList(),
             _ => tuple.isDescending
-                ? filtered.OrderByDescending(it => it.ClientId).ToList()
-                : filtered.OrderBy(it => it.ClientId).ToList()
+                     ? filtered.OrderByDescending(it => it.ClientId).ToList()
+                     : filtered.OrderBy(it => it.ClientId).ToList()
         };
     }
 
@@ -175,17 +187,16 @@ public class ClientViewModel : ViewModelBase {
 
     private async void EditItem(Client? arg) {
         if (arg is null) return;
-        // await new EditClientDialog(
-        //     arg,
-        //     async client =>
-        //     {
-        //         await using var db = new MyDatabase();
-        //         await db.UpdateAsync(client.ClientId, client);
-        //         ReplaceItem(arg, client);
-        //     },
-        //     "Изменить клиента"
-        // ).ShowDialog(_clientView);
-        throw new NotImplementedException();
+        await EditDialog.NewInstance(
+            async client => {
+                await using var db = new MyDatabase();
+                await db.UpdateAsync(client.ClientId, client);
+                ReplaceItem(arg, client);
+            },
+            arg,
+            title: "Изменить клиента"
+        ).ShowDialog(MainWindow);
+        // throw new NotImplementedException();
     }
 
     private void ReplaceItem(Client prevItem, Client newItem) {
@@ -206,18 +217,18 @@ public class ClientViewModel : ViewModelBase {
     }
 
     private async Task NewItem() {
-        // await new EditClientDialog(
-        //     new Client(),
-        //     async client =>
-        //     {
-        //         await using var db = new MyDatabase();
-        //         int newItemId = Convert.ToInt32(await db.InsertAsync(client));
-        //         client.ClientId = newItemId;
-        //         _itemsFull.Add(client);
-        //     },
-        //     "Добавить клиента"
-        // ).ShowDialog(_clientView);
-        throw new NotImplementedException();
+        await EditDialog.NewInstance<Client>(
+            async client => {
+                await using var db = new MyDatabase();
+                int newItemId = Convert.ToInt32(await db.InsertAsync(client));
+                client.ClientId = newItemId;
+                _itemsFull.Add(client);
+                if (Items.Count < 10) {
+                    Items.Add(client);
+                }
+            },
+            title: "Новый клиент"
+        ).ShowDialog(MainWindow);
     }
 
     private void TakeNext() {
