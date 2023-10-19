@@ -30,8 +30,21 @@
                     <controls:SymbolIconSource Symbol="Home" />
                 </controls:NavigationViewItem.IconSource>
             </controls:NavigationViewItem>
+            <controls:NavigationViewItem Content="Клиенты" Tag="{x:Type views:ClientView}">
+                <controls:NavigationViewItem.IconSource>
+                    <controls:SymbolIconSource Symbol="OtherUser" />
+                </controls:NavigationViewItem.IconSource>
+            </controls:NavigationViewItem>
+            <controls:NavigationViewItem Content="Оборудование" Tag="{x:Type views:GearView}"/>
+            <controls:NavigationViewItem Content="Тип неисправности" Tag="{x:Type views:FailureTypeView}"/>
+            <controls:NavigationViewItem Content="Приоритет" Tag="{x:Type views:PriorityView}"/>
+            <controls:NavigationViewItem Content="Статус заявки" Tag="{x:Type views:RequestStatusView}"/>
+            <controls:NavigationViewItem Content="Исполнитель" Tag="{x:Type views:ExecutorView}"/>
+            <controls:NavigationViewItem Content="Услуга" Tag="{x:Type views:ServiceView}"/>
+            <controls:NavigationViewItem Content="Заявка" Tag="{x:Type views:RequestView}"/>
+            <controls:NavigationViewItem Content="Исполнение" Tag="{x:Type views:ExecutionView}"/>
+            <controls:NavigationViewItem Content="Оказанные услуги" Tag="{x:Type views:RequestServiceView}"/>
         </controls:NavigationView.MenuItems>
         <controls:Frame Name="Frame" Padding="15" />
     </controls:NavigationView>
-
 </rxui:ReactiveWindow>

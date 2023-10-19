@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -21,16 +23,20 @@ public partial class App : Application {
             var mainWindow = new MainWindow() {
                 IsEnabled = false
             };
-            var login = ShowLoginWindow(
-                u => {
+            var login = CreateLoginWindow(
+                (u, g) => {
                     if (u is null) return;
-                    MainWindow.CurrentUser = u;
+                    mainWindow.CurrentUser = u;
+                    mainWindow.CurrentUserGroups = new ObservableCollection<Group>(g);
                     mainWindow.IsEnabled = true;
                 }
             );
             login.Closed += (_, _) => {
-                if (MainWindow.CurrentUser is not null) return;
+                if (mainWindow.CurrentUser is not null) return;
                 mainWindow.Close();
+            };
+            mainWindow.Opened += (_, _) => {
+                login.Show(mainWindow);
             };
             desktop.MainWindow = mainWindow;
         }
@@ -38,12 +44,14 @@ public partial class App : Application {
         base.OnFrameworkInitializationCompleted();
     }
 
-    private static LoginView ShowLoginWindow(Action<User?> action) {
+    public MainWindow MainWindow => (ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow! as MainWindow;
+
+    private static LoginView CreateLoginWindow(Action<User?, List<Group>> action) {
         var login = new LoginView();
-
-        login.ViewModel.WhenAnyValue(it => it.User, selector: user => user).Subscribe(action);
-
-        login.Show();
+        login.ViewModel.WhenAnyValue(
+            it => it.User,
+            it => it.Groups)
+            .Subscribe(tuple => action(tuple.Item1, tuple.Item2));
         return login;
     }
 }

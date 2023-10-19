@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -27,6 +28,8 @@ public class LoginViewModel : ViewModelBase {
 
     [Reactive] public User? User { get; set; } = null;
 
+    [Reactive] public List<Group> Groups { get; set; } = new List<Group>();
+
     public LoginViewModel(LoginView view) {
         _view = view;
 
@@ -54,6 +57,10 @@ public class LoginViewModel : ViewModelBase {
             IsPromptIncorrect = true;
             return;
         }
+
+        Groups = await db.GetAsync<UserGroup>().Where(ug => ug.User.Id == User.Id)
+            .Select(x => x.Group)
+            .ToListAsync();
 
         _view.Close();
     }
