@@ -23,7 +23,8 @@ public partial class EditDialog : ReactiveWindow<EditDialogViewModel> {
         InitializeComponent();
     }
 
-    public static EditDialog NewInstance<T>(Action<T?> positiveClick, T? item = null, string title = "") where T : class, new() {
+    public static EditDialog NewInstance<T>(Action<T?> positiveClick, T? item = null, string title = "")
+        where T : class, new() {
         var dialog = new EditDialog() {
             [!Window.TitleProperty] = new Binding("Title")
         };
@@ -33,9 +34,7 @@ public partial class EditDialog : ReactiveWindow<EditDialogViewModel> {
                 positiveClick(obj);
                 dialog.Close();
             },
-            obj => {
-                dialog.Close();
-            },
+            obj => { dialog.Close(); },
             title
         );
         dialog.SetupField<T>();
@@ -89,6 +88,16 @@ public partial class EditDialog : ReactiveWindow<EditDialogViewModel> {
                 box = new NumericUpDown() {
                     ShowButtonSpinner = false,
                     [!NumericUpDown.ValueProperty] = new Binding($"Item.{propertyInfo.Name}"),
+                };
+            }
+            else if (
+                type == typeof(DateTime)
+                || type == typeof(DateTime?)
+                || type == typeof(DateTimeOffset)
+                || type == typeof(DateTimeOffset?)
+            ) {
+                box = new DatePicker() {
+                    [!DatePicker.SelectedDateProperty] = new Binding($"Item.{propertyInfo.Name}")
                 };
             }
             else {

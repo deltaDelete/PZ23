@@ -16,11 +16,11 @@ public class Request {
     [DbType(MySqlDbType.Date)]
     [Column("start_date")]
     [DisplayName("Дата начала")]
-    public DateTime StartDate { get; set; }
+    public DateTimeOffset StartDate { get; set; }
     [DbType(MySqlDbType.Date)]
     [Column("end_date")]
     [DisplayName("Дата окончания")]
-    public DateTime? EndDate { get; set; }
+    public DateTimeOffset? EndDate { get; set; }
     [DbType(MySqlDbType.Int32)]
     [Column("gear_id")]
     [DisplayName("Код оборудования")]
