@@ -24,7 +24,7 @@
                              SelectionChanged="NavigationView_OnSelectionChanged"
                              IsSettingsVisible="False">
         <controls:NavigationView.MenuItems>
-            <controls:NavigationViewItem Content="Sample" Tag="{x:Type views:SampleView}" Name="SampleItem"
+            <controls:NavigationViewItem Content="Статистика по типам неисправности" Tag="{x:Type views:StatisticsView}" Name="SampleItem"
                                          IsSelected="True">
                 <controls:NavigationViewItem.IconSource>
                     <controls:SymbolIconSource Symbol="Home" />

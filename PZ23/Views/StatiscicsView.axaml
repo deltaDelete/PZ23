@@ -1,0 +1,21 @@
+<rxui:ReactiveUserControl x:TypeArguments="vm:StatisticsViewModel" xmlns="https://github.com/avaloniaui"
+                                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                                xmlns:rxui="http://reactiveui.net"
+                                xmlns:vm="clr-namespace:PZ23.ViewModels"
+                                x:DataType="vm:StatisticsViewModel"
+                                mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                                x:Class="PZ23.Views.StatisticsView">
+    <Design.DataContext>
+        <vm:StatisticsViewModel/>
+    </Design.DataContext>
+    <DockPanel LastChildFill="True">
+        <DataGrid DockPanel.Dock="Left" ItemsSource="{Binding TypeDistribution}" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="All">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Тип неисправности" Binding="{Binding Name}"/>
+                <DataGridTextColumn Header="Количество" Binding="{Binding Amount}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</rxui:ReactiveUserControl>
