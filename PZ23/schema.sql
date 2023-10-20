@@ -69,6 +69,7 @@ create table if not exists requests
     client_id           int                           not null,
     priority_id         int                           not null,
     request_status_id   int                           not null,
+    end_date            date                          null,
     constraint requests_clients_client_id_fk
         foreign key (client_id) references clients (client_id),
     constraint requests_failure_types_failure_type_id_fk

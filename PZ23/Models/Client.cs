@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using DbTools;
@@ -14,11 +15,14 @@ public class Client {
 
     [DbType(MySqlDbType.VarChar)]
     [Column("last_name")]
+    [DisplayName("Фамилия")]
     public string LastName { get; set; } = string.Empty;
     [DbType(MySqlDbType.VarChar)]
     [Column("first_name")]
+    [DisplayName("Имя")]
     public string FirstName { get; set; } = string.Empty;
     [DbType(MySqlDbType.VarChar)]
     [Column("middle_name")]
+    [DisplayName("Отчество")]
     public string MiddleName { get; set; } = string.Empty;
 }

@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using PZ23.Models;
 using PZ23.Views;
+using PZ23.Views.Dialogs;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -199,18 +200,15 @@ public class RequestViewModel: ViewModelBase
     }
 
     private async void EditItem(Request? arg) {
-        if (arg is null) return;
-        // await new EditClientDialog(
-        //     arg,
-        //     async client =>
-        //     {
-        //         await using var db = new MyDatabase();
-        //         await db.UpdateAsync(client.ClientId, client);
-        //         ReplaceItem(arg, client);
-        //     },
-        //     "Изменить клиента"
-        // ).ShowDialog(_clientView);
-        throw new NotImplementedException();
+        await EditDialog.NewInstance(
+            async item => {
+                await using var db = new MyDatabase();
+                await db.UpdateAsync(item.RequestId, item);
+                ReplaceItem(arg, item);
+            },
+            arg,
+            title: "Изменить заявку"
+        ).ShowDialog(MainWindow);
     }
 
     private void ReplaceItem(Request prevItem, Request newItem) {
@@ -231,18 +229,18 @@ public class RequestViewModel: ViewModelBase
     }
 
     private async Task NewItem() {
-        // await new EditClientDialog(
-        //     new Client(),
-        //     async client =>
-        //     {
-        //         await using var db = new MyDatabase();
-        //         int newItemId = Convert.ToInt32(await db.InsertAsync(client));
-        //         client.ClientId = newItemId;
-        //         _itemsFull.Add(client);
-        //     },
-        //     "Добавить клиента"
-        // ).ShowDialog(_clientView);
-        throw new NotImplementedException();
+        await EditDialog.NewInstance<Request>(
+            async i => {
+                await using var db = new MyDatabase();
+                int newItemId = Convert.ToInt32(await db.InsertAsync(i));
+                i.ClientId = newItemId;
+                _itemsFull.Add(i);
+                if (Items.Count < 10) {
+                    Items.Add(i);
+                }
+            },
+            title: "Новая заявка"
+        ).ShowDialog(MainWindow);
     }
 
     private void TakeNext() {
